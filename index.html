@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Доступ</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: #00ff41;
+      font-family: 'VT323', monospace;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .screen {
+      border: 3px solid #003300;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0,255,65,0.2);
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 36px;
+    }
+
+    input, button {
+      background: black;
+      color: #00ff41;
+      border: 2px solid #003300;
+      font-family: inherit;
+      font-size: 20px;
+      padding: 10px;
+      margin: 5px;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .msg {
+      margin-top: 15px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screen">
+    <h1>ВВЕДИТЕ ПАРОЛЬ:</h1>
+
+    <input id="password" type="password">
+    <br>
+    <button onclick="check()">SUBMIT</button>
+
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <script>
+    const correctPassword = "12345"; // ← ЗДЕСЬ ПАРОЛЬ
+
+    function check() {
+      const input = document.getElementById("password").value;
+      const msg = document.getElementById("msg");
+
+      if (input === correctPassword) {
+        msg.textContent = "Доступ разрешён. Скачивание...";
+        window.location.href = "download/secret.zip";
+      } else {
+        msg.textContent = "Неверный пароль";
+      }
+    }
+  </script>
+
+</body>
+</html>

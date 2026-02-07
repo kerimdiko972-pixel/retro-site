@@ -1,82 +1,305 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8">
-  <title>Доступ</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Ретро-доступ — ВВЕДИТЕ ПАРОЛЬ</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<!-- Ретро-шрифт -->
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 
-  <style>
-    body {
-      margin: 0;
-      background: black;
-      color: #00ff41;
-      font-family: 'VT323', monospace;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
+<style>
+  :root{
+    --bg: #000;
+    --green: #00ff41;
+    --muted: #6f9a6f;
+    --error-red: rgba(255,30,30,0.95);
+  }
 
-    .screen {
-      border: 3px solid #003300;
-      padding: 30px;
-      text-align: center;
-      box-shadow: 0 0 20px rgba(0,255,65,0.2);
-    }
+  /* базовая раскладка */
+  html,body{height:100%;margin:0;}
+  body{
+    background:var(--bg);
+    font-family: 'VT323', monospace;
+    color:var(--green);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    -webkit-font-smoothing:antialiased;
+  }
 
-    h1 {
-      margin-bottom: 20px;
-      font-size: 36px;
-    }
+  /* контейнер CRT — сюда накладываются все эффекты */
+  .crt {
+    position: relative;
+    width: 640px;
+    max-width: 96%;
+    border-radius:8px;
+    overflow: visible;
+    padding: 28px;
+    box-shadow:
+      0 0 120px rgba(0,255,65,0.04),
+      inset 0 0 40px rgba(0,0,0,0.6);
+    background: linear-gradient(180deg, #020202 0%, #000000 100%);
+    border: 3px solid rgba(0,50,0,0.7);
+  }
 
-    input, button {
-      background: black;
-      color: #00ff41;
-      border: 2px solid #003300;
-      font-family: inherit;
-      font-size: 20px;
-      padding: 10px;
-      margin: 5px;
-    }
+  /* сам экран (видимая область) */
+  .screen {
+    position: relative;
+    padding: 22px;
+    text-align: center;
+    border-radius: 4px;
+  }
 
-    button {
-      cursor: pointer;
-    }
+  h1 {
+    margin:0 0 18px 0;
+    font-size: 40px;
+    letter-spacing: 1px;
+  }
 
-    .msg {
-      margin-top: 15px;
-      font-size: 18px;
-    }
-  </style>
+  /* строка ввода */
+  .controls {
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    align-items:center;
+    margin-top:8px;
+  }
+
+  input[type="password"]{
+    width:300px;
+    max-width:60%;
+    background:transparent;
+    border:2px solid rgba(0,60,0,0.6);
+    color:var(--green);
+    padding:10px 12px;
+    font-size:22px;
+    outline:none;
+    border-radius:4px;
+    caret-color:var(--green);
+    text-align:center;
+  }
+
+  button {
+    background:transparent;
+    border:2px solid rgba(0,60,0,0.6);
+    color:var(--green);
+    padding:10px 14px;
+    font-size:18px;
+    cursor:pointer;
+    border-radius:4px;
+  }
+
+  .msg {
+    height:24px;
+    margin-top:16px;
+    color: var(--muted);
+    font-size:16px;
+  }
+
+  /* --- CRT / VHS visual effects --- */
+
+  /* 1) скан-линии (тонкие полосы) */
+  .crt::before {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,0) 0px,
+      rgba(0,0,0,0) 1px,
+      rgba(0,0,0,0.06) 2px
+    );
+    opacity: 0.22;
+    mix-blend-mode: multiply;
+  }
+
+  /* 2) лёгкий шум/зерно (анимируется) */
+  .noise {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cfilter id='f'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='0.03' /%3E%3C/svg%3E");
+    opacity: 0.9;
+    animation: noiseShift 4s steps(6) infinite;
+    mix-blend-mode: screen;
+  }
+  @keyframes noiseShift {
+    0%{ transform: translate(0,0) }
+    25%{ transform: translate(-2px,1px) }
+    50%{ transform: translate(1px,-1px) }
+    75%{ transform: translate(-1px,2px) }
+    100%{ transform: translate(0,0) }
+  }
+
+  /* 3) лёгкое дрожание / flicker */
+  .screen {
+    animation: flicker 3s infinite;
+  }
+  @keyframes flicker {
+    0% { filter: contrast(1.05) brightness(1.02) saturate(1.05); transform: translateY(0); }
+    4% { filter: contrast(1.12) brightness(1.06) saturate(1.15); transform: translateY(-0.8px);}
+    7% { filter: contrast(1.00) brightness(0.98) saturate(.95); transform: translateY(0.5px);}
+    11% { filter: contrast(1.08) brightness(1.03) saturate(1.02); transform: translateY(0);}
+    100%{ filter: contrast(1.05) brightness(1.02) saturate(1.05); transform: translateY(0); }
+  }
+
+  /* 4) хроматическая аберрация (три слоя текста: реализовано через псевдоэлементы) */
+  .title-wrap{ position: relative; display:inline-block; }
+  .title-wrap::before,
+  .title-wrap::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0; top: 0;
+    width: 100%;
+    pointer-events: none;
+    color: var(--green);
+    opacity: 0.12;
+    filter: blur(0.6px);
+  }
+  /* смещение цветов */
+  .title-wrap::before { transform: translateX(-2px) translateY(0); mix-blend-mode: screen; text-shadow: -1px 0 rgba(0,255,120,0.6);}
+  .title-wrap::after  { transform: translateX(2px) translateY(0); mix-blend-mode: screen; text-shadow: 1px 0 rgba(100,255,200,0.6);}
+
+  /* 5) виньетка (чёрная по краям, по-умолчанию) */
+  .vignette {
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0) 45%, rgba(0,0,0,0.55) 85%);
+    mix-blend-mode: multiply;
+    transition: background .15s linear, opacity .15s linear;
+  }
+
+  /* 6) эффект ERROR (красная мигалка + красная виньетка) */
+  .error-overlay {
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    background: linear-gradient(180deg, rgba(255,0,0,0.06), rgba(160,0,0,0.18));
+    opacity: 0;
+    transition: opacity .08s linear;
+    mix-blend-mode: screen;
+  }
+
+  /* класс, который добавляем при ошибке */
+  .is-error .error-overlay { animation: redFlash .9s linear both; }
+  .is-error .vignette { background: radial-gradient(ellipse at center, rgba(255,0,0,0.12) 30%, rgba(80,0,0,0.85) 90%); }
+
+  @keyframes redFlash {
+    0% { opacity: 0; }
+    12% { opacity: 1; filter: blur(0.3px); }
+    40% { opacity: 0.65; transform: scale(1.02); }
+    70% { opacity: 0.4; transform: scale(1); }
+    100% { opacity: 0; }
+  }
+
+  /* добавим лёгкую тряску экрана при неправильном вводе */
+  .is-error .screen { animation: shake 0.5s linear; }
+
+  @keyframes shake {
+    0%{ transform: translateX(0) }
+    20%{ transform: translateX(-6px) }
+    40%{ transform: translateX(6px) }
+    60%{ transform: translateX(-4px) }
+    80%{ transform: translateX(4px) }
+    100%{ transform: translateX(0) }
+  }
+
+  /* уменьшение яркости подсказки на экране */
+  .muted { color: rgba(110,160,110,0.85); }
+
+  /* маленькие экраны — уменьшаем шрифт */
+  @media (max-width:420px){
+    h1{ font-size:28px; }
+    input[type="password"]{ font-size:18px; padding:8px; width:180px; }
+  }
+</style>
 </head>
 <body>
+  <div class="crt" id="crt">
+    <!-- шум + сканлайны -->
+    <div class="noise" aria-hidden="true"></div>
 
-  <div class="screen">
-    <h1>ВВЕДИТЕ ПАРОЛЬ:</h1>
+    <!-- область экрана -->
+    <div class="screen" id="screen">
+      <div class="title-wrap" data-text="ВВЕДИТЕ ПАРОЛЬ:">
+        <h1>ВВЕДИТЕ ПАРОЛЬ (без пробелов):</h1>
+      </div>
 
-    <input id="password" type="password">
-    <br>
-    <button onclick="check()">SUBMIT</button>
+      <div class="controls" style="margin-top:18px;">
+        <input id="pw" type="password" inputmode="numeric" aria-label="Пароль" placeholder="●●●●●">
+        <button id="btn">SUBMIT</button>
+      </div>
 
-    <div class="msg" id="msg"></div>
+      <div class="msg" id="msg" aria-live="polite"></div>
+    </div>
+
+    <!-- виньетка (обычная) -->
+    <div class="vignette" id="vignette" aria-hidden="true"></div>
+    <!-- красный слой для флеша -->
+    <div class="error-overlay" id="errOverlay" aria-hidden="true"></div>
   </div>
 
-  <script>
-    const correctPassword = "12345"; // ← ЗДЕСЬ ПАРОЛЬ
+<script>
+/*
+  Настройки:
+  - Замените correctPassword на нужный код
+  - Замените downloadPath на путь к вашему zip (внутри папки download/)
+*/
+const correctPassword = "ForeverAlone";      // <-- поменяй здесь пароль
+const downloadPath = "download/secret.zip"; // <-- путь к файлу в репозитории
 
-    function check() {
-      const input = document.getElementById("password").value;
-      const msg = document.getElementById("msg");
+const pwInput = document.getElementById('pw');
+const btn = document.getElementById('btn');
+const msg = document.getElementById('msg');
+const crt = document.getElementById('crt');
+const screen = document.getElementById('screen');
 
-      if (input === correctPassword) {
-        msg.textContent = "Доступ разрешён. Скачивание...";
-        window.location.href = "download/secret.zip";
-      } else {
-        msg.textContent = "Неверный пароль";
-      }
-    }
-  </script>
+// Удобство: Enter работает
+pwInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); attempt(); }
+});
+btn.addEventListener('click', attempt);
 
+function attempt() {
+  const val = pwInput.value || "";
+  if (val === correctPassword) {
+    msg.textContent = "Пароль верный. Начинаем скачивание...";
+    // запустить скачивание
+    const a = document.createElement('a');
+    a.href = downloadPath;
+    a.setAttribute('download','secret.zip');
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    pwInput.value = "";
+  } else {
+    // Неверный: включаем визуальную сигнализацию
+    msg.textContent = "Неверный пароль";
+    triggerErrorFlash();
+  }
+}
+
+function triggerErrorFlash(){
+  // добавляем класс, который запускает анимации
+  document.body.classList.add('is-error');
+  crt.classList.add('is-error');
+
+  // быстро убрать через ~900ms (чтобы флеш был заметен, но не утомлял)
+  setTimeout(()=> {
+    document.body.classList.remove('is-error');
+    crt.classList.remove('is-error');
+    // вернуть фокус в поле
+    pwInput.focus();
+    pwInput.select();
+  }, 900);
+}
+
+// по умолчанию — фокус в поле
+pwInput.focus();
+</script>
 </body>
 </html>

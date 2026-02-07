@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Ретро-доступ — ВВЕДИТЕ ПАРОЛЬ</title>
+<title>Ретро-консоль — ВВЕДИТЕ КОМАНДУ</title>
 
 <!-- Ретро-шрифт -->
 <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
@@ -13,14 +13,14 @@
     --bg: #000;
     --green: #00ff41;
     --muted: #6f9a6f;
-    --error-red: rgba(255,30,30,0.95);
+    --red: #ff3b3b;
   }
 
-  /* базовая раскладка */
+  /* ---- базовая раскладка ---- */
   html,body{height:100%;margin:0;}
   body{
     background:var(--bg);
-    font-family: 'VT323', monospace;
+    font-family:'VT323', monospace;
     color:var(--green);
     display:flex;
     align-items:center;
@@ -29,277 +29,308 @@
     -webkit-font-smoothing:antialiased;
   }
 
-  /* контейнер CRT — сюда накладываются все эффекты */
-  .crt {
-    position: relative;
-    width: 640px;
-    max-width: 96%;
-    border-radius:8px;
-    overflow: visible;
-    padding: 28px;
-    box-shadow:
-      0 0 120px rgba(0,255,65,0.04),
-      inset 0 0 40px rgba(0,0,0,0.6);
-    background: linear-gradient(180deg, #020202 0%, #000000 100%);
-    border: 3px solid rgba(0,50,0,0.7);
+  .crt-wrap{
+    position:relative;
+    width:760px;
+    max-width:96%;
+    border-radius:10px;
+    overflow:visible;
+    padding:28px;
+    background:linear-gradient(180deg,#020202 0%, #000 100%);
+    border: 4px solid rgba(0,60,0,0.7);
+    box-shadow: 0 0 140px rgba(0,255,65,0.04), inset 0 0 40px rgba(0,0,0,0.6);
   }
 
-  /* сам экран (видимая область) */
+  /* экран (видимая область) */
   .screen {
-    position: relative;
-    padding: 22px;
-    text-align: center;
-    border-radius: 4px;
+    position:relative;
+    padding:26px;
+    border-radius:6px;
+    text-align:center;
+    overflow:hidden;
   }
 
-  h1 {
+  .title-wrap{ position:relative; display:inline-block; }
+  h1{
     margin:0 0 18px 0;
-    font-size: 40px;
-    letter-spacing: 1px;
+    font-size:48px;
+    letter-spacing:1px;
   }
 
-  /* строка ввода */
-  .controls {
-    display:flex;
-    gap:10px;
-    justify-content:center;
-    align-items:center;
-    margin-top:8px;
-  }
-
-  input[type="password"]{
-    width:300px;
-    max-width:60%;
+  .controls{ display:flex; gap:12px; justify-content:center; align-items:center; margin-top:8px; }
+  input[type="text"], input[type="password"]{
+    width:360px;
+    max-width:62%;
     background:transparent;
     border:2px solid rgba(0,60,0,0.6);
     color:var(--green);
-    padding:10px 12px;
+    padding:12px 14px;
     font-size:22px;
     outline:none;
-    border-radius:4px;
+    border-radius:6px;
     caret-color:var(--green);
     text-align:center;
+    transition: box-shadow .12s ease, transform .08s ease;
   }
+  input::placeholder{ color: rgba(0,120,0,0.25); }
 
-  button {
+  button{
     background:transparent;
     border:2px solid rgba(0,60,0,0.6);
     color:var(--green);
-    padding:10px 14px;
+    padding:10px 16px;
     font-size:18px;
     cursor:pointer;
-    border-radius:4px;
+    border-radius:6px;
   }
+  button:active{ transform: translateY(1px); }
 
-  .msg {
-    height:24px;
-    margin-top:16px;
-    color: var(--muted);
-    font-size:16px;
-  }
+  .msg{ height:22px; margin-top:16px; color:var(--muted); font-size:16px; }
 
-  /* --- CRT / VHS visual effects --- */
+  /* ---- CRT / VHS визуальные эффекты ---- */
 
-  /* 1) скан-линии (тонкие полосы) */
-  .crt::before {
-    content: "";
-    pointer-events: none;
-    position: absolute;
-    inset: 0;
+  /* scanlines */
+  .crt-wrap::before{
+    content:"";
+    position:absolute; inset:0;
+    pointer-events:none;
     background-image: repeating-linear-gradient(
       to bottom,
       rgba(0,0,0,0) 0px,
       rgba(0,0,0,0) 1px,
       rgba(0,0,0,0.06) 2px
     );
-    opacity: 0.22;
-    mix-blend-mode: multiply;
+    opacity:0.22; mix-blend-mode:multiply;
   }
 
-  /* 2) лёгкий шум/зерно (анимируется) */
-  .noise {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cfilter id='f'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='0.03' /%3E%3C/svg%3E");
-    opacity: 0.9;
-    animation: noiseShift 4s steps(6) infinite;
-    mix-blend-mode: screen;
-  }
-  @keyframes noiseShift {
-    0%{ transform: translate(0,0) }
-    25%{ transform: translate(-2px,1px) }
-    50%{ transform: translate(1px,-1px) }
-    75%{ transform: translate(-1px,2px) }
-    100%{ transform: translate(0,0) }
-  }
-
-  /* 3) лёгкое дрожание / flicker */
-  .screen {
-    animation: flicker 3s infinite;
-  }
-  @keyframes flicker {
-    0% { filter: contrast(1.05) brightness(1.02) saturate(1.05); transform: translateY(0); }
-    4% { filter: contrast(1.12) brightness(1.06) saturate(1.15); transform: translateY(-0.8px);}
-    7% { filter: contrast(1.00) brightness(0.98) saturate(.95); transform: translateY(0.5px);}
-    11% { filter: contrast(1.08) brightness(1.03) saturate(1.02); transform: translateY(0);}
-    100%{ filter: contrast(1.05) brightness(1.02) saturate(1.05); transform: translateY(0); }
-  }
-
-  /* 4) хроматическая аберрация (три слоя текста: реализовано через псевдоэлементы) */
-  .title-wrap{ position: relative; display:inline-block; }
+  /* chroma (pseudo layers) */
   .title-wrap::before,
   .title-wrap::after {
     content: attr(data-text);
-    position: absolute;
-    left: 0; top: 0;
-    width: 100%;
-    pointer-events: none;
-    color: var(--green);
-    opacity: 0.12;
-    filter: blur(0.6px);
+    position:absolute; left:0; top:0; width:100%;
+    pointer-events:none; opacity:0.12; filter: blur(.6px);
   }
-  /* смещение цветов */
-  .title-wrap::before { transform: translateX(-2px) translateY(0); mix-blend-mode: screen; text-shadow: -1px 0 rgba(0,255,120,0.6);}
-  .title-wrap::after  { transform: translateX(2px) translateY(0); mix-blend-mode: screen; text-shadow: 1px 0 rgba(100,255,200,0.6);}
+  .title-wrap::before { transform: translateX(-2px); text-shadow:-1px 0 rgba(0,255,120,0.6); mix-blend-mode:screen; }
+  .title-wrap::after  { transform: translateX(2px); text-shadow:1px 0 rgba(100,255,200,0.6); mix-blend-mode:screen; }
 
-  /* 5) виньетка (чёрная по краям, по-умолчанию) */
-  .vignette {
-    position:absolute;
-    inset:0;
-    pointer-events:none;
-    background: radial-gradient(ellipse at center, rgba(0,0,0,0) 45%, rgba(0,0,0,0.55) 85%);
-    mix-blend-mode: multiply;
-    transition: background .15s linear, opacity .15s linear;
+  /* noise */
+  .noise{
+    position:absolute; inset:0; pointer-events:none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cfilter id='f'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='0.03' /%3E%3C/svg%3E");
+    opacity:0.9; mix-blend-mode:screen; animation:noiseShift 4s steps(6) infinite;
+  }
+  @keyframes noiseShift{
+    0%{transform:translate(0,0)}25%{transform:translate(-2px,1px)}50%{transform:translate(1px,-1px)}75%{transform:translate(-1px,2px)}100%{transform:translate(0,0)}
   }
 
-  /* 6) эффект ERROR (красная мигалка + красная виньетка) */
-  .error-overlay {
-    position:absolute;
-    inset:0;
-    pointer-events:none;
+  /* flicker */
+  .screen{ animation:flicker 3s infinite; }
+  @keyframes flicker{
+    0%{filter:contrast(1.05)brightness(1.02)}4%{filter:contrast(1.12)brightness(1.06)}7%{filter:contrast(1.00)brightness(0.98)}11%{filter:contrast(1.08)brightness(1.03)}100%{filter:contrast(1.05)brightness(1.02)}
+  }
+
+  /* vignette */
+  .vignette{
+    position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(ellipse at center, rgba(0,0,0,0) 45%, rgba(0,0,0,0.55) 85%);
+    mix-blend-mode:multiply; transition: background .15s linear, opacity .15s linear;
+  }
+
+  /* error overlay (red flash) */
+  .error-overlay{
+    position:absolute; inset:0; pointer-events:none;
     background: linear-gradient(180deg, rgba(255,0,0,0.06), rgba(160,0,0,0.18));
-    opacity: 0;
-    transition: opacity .08s linear;
-    mix-blend-mode: screen;
+    opacity:0; transition:opacity .08s linear; mix-blend-mode: screen;
+  }
+  .is-error .error-overlay{ animation:redFlash .9s linear both; }
+  @keyframes redFlash{
+    0%{opacity:0}12%{opacity:1}40%{opacity:0.65;transform:scale(1.02)}70%{opacity:0.4;transform:scale(1)}100%{opacity:0}
+  }
+  .is-error .screen{ animation:shake 0.5s linear; }
+  @keyframes shake{
+    0%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}100%{transform:translateX(0)}
   }
 
-  /* класс, который добавляем при ошибке */
-  .is-error .error-overlay { animation: redFlash .9s linear both; }
-  .is-error .vignette { background: radial-gradient(ellipse at center, rgba(255,0,0,0.12) 30%, rgba(80,0,0,0.85) 90%); }
-
-  @keyframes redFlash {
-    0% { opacity: 0; }
-    12% { opacity: 1; filter: blur(0.3px); }
-    40% { opacity: 0.65; transform: scale(1.02); }
-    70% { opacity: 0.4; transform: scale(1); }
-    100% { opacity: 0; }
+  /* ---- burning effect (for command 666) ---- */
+  .fire-overlay{
+    position:absolute; inset:0; pointer-events:none; opacity:0; transition:opacity .2s linear;
   }
 
-  /* добавим лёгкую тряску экрана при неправильном вводе */
-  .is-error .screen { animation: shake 0.5s linear; }
-
-  @keyframes shake {
-    0%{ transform: translateX(0) }
-    20%{ transform: translateX(-6px) }
-    40%{ transform: translateX(6px) }
-    60%{ transform: translateX(-4px) }
-    80%{ transform: translateX(4px) }
-    100%{ transform: translateX(0) }
+  /* flame visuals composed by multiple gradients and animated positions */
+  .fire{
+    position:absolute; inset:0; pointer-events:none;
+    background:
+      radial-gradient(ellipse at 20% 90%, rgba(255,200,0,0.05), transparent 20%),
+      radial-gradient(ellipse at 80% 90%, rgba(255,120,20,0.04), transparent 20%),
+      linear-gradient(180deg, rgba(255,80,0,0.02), rgba(20,0,0,0.55));
+    mix-blend-mode:screen;
+    filter: blur(6px) saturate(1.4);
+    opacity:0.0;
+    transform:translateY(0);
+    animation:fireRise 3s ease-in-out infinite;
   }
 
-  /* уменьшение яркости подсказки на экране */
-  .muted { color: rgba(110,160,110,0.85); }
+  .embers{
+    position:absolute; inset:0; pointer-events:none; background-image: radial-gradient(circle at 10% 30%, rgba(255,90,20,0.9), transparent 6%),
+    radial-gradient(circle at 60% 50%, rgba(255,130,30,0.8), transparent 8%),
+    radial-gradient(circle at 30% 70%, rgba(255,80,10,0.7), transparent 5%);
+    mix-blend-mode: screen; filter: blur(2px);
+    opacity:0;
+    animation:embersFlick 1.8s infinite;
+  }
 
-  /* маленькие экраны — уменьшаем шрифт */
-  @media (max-width:420px){
+  @keyframes fireRise{
+    0%{opacity:0; transform:translateY(6px) scale(1)}
+    30%{opacity:0.65; transform:translateY(-6px) scale(1.02)}
+    60%{opacity:0.5; transform:translateY(-2px) scale(1.01)}
+    100%{opacity:0; transform:translateY(6px)}
+  }
+  @keyframes embersFlick{
+    0%{opacity:0}10%{opacity:0.9}50%{opacity:0.45}90%{opacity:0.9}100%{opacity:0}
+  }
+
+  /* class toggled when burning */
+  .is-burning .fire-overlay{ opacity:1; }
+  .is-burning .fire{ opacity:0.85; filter: blur(4px) saturate(1.6); }
+  .is-burning .embers{ opacity:1; }
+
+  /* visual "crest" -- screen tint while burning */
+  .is-burning .screen { filter: contrast(1.2) saturate(1.2) hue-rotate(-10deg); }
+  .is-burning h1 { color: #ffcf64; text-shadow: 0 0 8px rgba(255,120,40,0.6); }
+
+  /* small screens */
+  @media (max-width:480px){
     h1{ font-size:28px; }
-    input[type="password"]{ font-size:18px; padding:8px; width:180px; }
+    input[type="text"]{ font-size:18px; padding:8px; width:170px; }
   }
 </style>
 </head>
 <body>
-  <div class="crt" id="crt">
-    <!-- шум + сканлайны -->
+  <div class="crt-wrap" id="crt">
     <div class="noise" aria-hidden="true"></div>
 
-    <!-- область экрана -->
     <div class="screen" id="screen">
-      <div class="title-wrap" data-text="ВВЕДИТЕ ПАРОЛЬ:">
-        <h1>ВВЕДИТЕ ПАРОЛЬ:</h1>
+      <div class="title-wrap" data-text="ВВЕДИТЕ КОМАНДУ:">
+        <h1>ВВЕДИТЕ КОМАНДУ:</h1>
       </div>
 
       <div class="controls" style="margin-top:18px;">
-        <input id="pw" type="password" inputmode="numeric" aria-label="Пароль" placeholder="●●●●●">
-        <button id="btn">SUBMIT</button>
+        <input id="cmd" type="text" inputmode="text" placeholder="Например: 67676767676767" aria-label="Команда">
+        <button id="submitBtn" aria-label="Отправить">ENTER</button>
       </div>
 
       <div class="msg" id="msg" aria-live="polite"></div>
     </div>
 
-    <!-- виньетка (обычная) -->
-    <div class="vignette" id="vignette" aria-hidden="true"></div>
-    <!-- красный слой для флеша -->
-    <div class="error-overlay" id="errOverlay" aria-hidden="true"></div>
+    <div class="vignette" aria-hidden="true"></div>
+    <div class="error-overlay" aria-hidden="true"></div>
+
+    <!-- burning layer -->
+    <div class="fire-overlay" id="fireOverlay" aria-hidden="true">
+      <div class="fire"></div>
+      <div class="embers"></div>
+    </div>
   </div>
 
 <script>
 /*
-  Настройки:
-  - Замените correctPassword на нужный код
-  - Замените downloadPath на путь к вашему zip (внутри папки download/)
+  Инструкция:
+  - Чтобы добавить новую команду: добавь запись в объект `commands`
+    ключ = команда (строка), значение = ссылка на файл.
+  - Команда "666" обрабатывается отдельно и включает эффект горения.
+  - Для релизных больших файлов используй прямую ссылку из Release (пример ниже).
 */
-const correctPassword = "3744162585204634162";      // <-- поменяй здесь пароль
-const downloadPath = "download/secret.zip"; // <-- путь к файлу в репозитории
 
-const pwInput = document.getElementById('pw');
-const btn = document.getElementById('btn');
+const commands = {
+  // команда : ссылка(полная или относительная)
+  "67676767676767": "https://github.com/kerimdiko972-pixel/retro-site/releases/download/v1/BRAINROT.CARDS.ARCHIVE.zip",
+  "3265416978": "download/secret.zip"
+  // можно добавить другие команды здесь
+};
+
+const input = document.getElementById('cmd');
+const btn = document.getElementById('submitBtn');
 const msg = document.getElementById('msg');
 const crt = document.getElementById('crt');
-const screen = document.getElementById('screen');
+const fireOverlay = document.getElementById('fireOverlay');
+const bodyEl = document.body;
 
-// Удобство: Enter работает
-pwInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') { e.preventDefault(); attempt(); }
+input.focus();
+
+// Enter key support
+input.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); handleCommand(); }
 });
-btn.addEventListener('click', attempt);
+btn.addEventListener('click', handleCommand);
 
-function attempt() {
-  const val = pwInput.value || "";
-  if (val === correctPassword) {
-    msg.textContent = "Пароль верный. Начинаем скачивание...";
-    // запустить скачивание
+// основной обработчик
+function handleCommand(){
+  const raw = (input.value || "").trim();
+  if (!raw) return;
+
+  // 666 special: включаем "пожар" навсегда (до перезагрузки)
+  if (raw === "666"){
+    msg.textContent = "Демонстрация: включаю пожарный эффект — обновите страницу, чтобы вернуть.";
+    enableBurning();
+    input.value = "";
+    return;
+  }
+
+  // остальные команды — ищем в таблице
+  const file = commands[raw];
+
+  if (file){
+    msg.textContent = "Команда принята. Начинаем скачивание...";
+    // создаём ссылку и кликаем
     const a = document.createElement('a');
-    a.href = downloadPath;
-    a.setAttribute('download','secret.zip');
+    a.href = file;
+    // подсказываем имя файла при сохранении (optional)
+    try {
+      const name = file.split('/').pop();
+      a.setAttribute('download', name);
+    } catch (e){}
     document.body.appendChild(a);
     a.click();
     a.remove();
-    pwInput.value = "";
+    input.value = "";
   } else {
-    // Неверный: включаем визуальную сигнализацию
-    msg.textContent = "Неверный пароль";
+    // неверная команда — красный флеш и сообщение
+    msg.textContent = "Неверная команда";
     triggerErrorFlash();
+    input.value = "";
   }
 }
 
+// error flash (класс живёт ~900ms)
 function triggerErrorFlash(){
-  // добавляем класс, который запускает анимации
-  document.body.classList.add('is-error');
+  bodyEl.classList.add('is-error');
   crt.classList.add('is-error');
-
-  // быстро убрать через ~900ms (чтобы флеш был заметен, но не утомлял)
   setTimeout(()=> {
-    document.body.classList.remove('is-error');
+    bodyEl.classList.remove('is-error');
     crt.classList.remove('is-error');
-    // вернуть фокус в поле
-    pwInput.focus();
-    pwInput.select();
+    input.focus();
   }, 900);
 }
 
-// по умолчанию — фокус в поле
-pwInput.focus();
+// burning effect: добавляет класс и не убирает
+function enableBurning(){
+  bodyEl.classList.add('is-burning');
+  crt.classList.add('is-burning');
+  // фокус убрать, чтобы не мешал
+  input.blur();
+}
+
+// — полезный: чистая функция для добавления команды в runtime (не сохраняется в файле)
+function addCommand(command, link){
+  commands[String(command)] = String(link);
+}
+
+/* === Примечания ===
+ - Для скачивания больших файлов используй GitHub Releases и ссылку в формате:
+   https://github.com/ТВОЙ_НИК/репо/releases/download/vX/ИмяФайла.zip
+ - Путь "download/secret.zip" — это относительный путь в репозитории (если файл добавлен через Upload в папку download)
+ - Любой пользователь, видя код страницы, может увидеть ссылки — это клиентская реализация.
+*/
 </script>
 </body>
 </html>
